@@ -49,6 +49,7 @@ public class Tag {
         this.name = name;
     }
 
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
