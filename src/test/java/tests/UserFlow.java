@@ -1,4 +1,4 @@
-package user;
+package tests;
 
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
@@ -21,7 +21,7 @@ public class UserFlow extends Hooks {
     int id;
 
     /**************************************************************
-     * The test expecting to create successfully a user on the page
+     * The test expecting to create successfully a tests on the page
      *************************************************************/
     @Test
     public void test1() {
@@ -30,7 +30,7 @@ public class UserFlow extends Hooks {
                 given().
                     contentType(ContentType.JSON).
                     accept("application/json").
-                    body(file).
+                    body(file).log().all().
                 when().
                     post("/user");
 
@@ -49,7 +49,7 @@ public class UserFlow extends Hooks {
     }
 
     /******************************
-     * Get created user credentials
+     * Get created tests credentials
      * GET METHOD
      *****************************/
 
@@ -62,7 +62,7 @@ public class UserFlow extends Hooks {
             given().
                 accept("application/json").
             when().
-                get("/user/"+username).
+                get("/user/" +username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
@@ -74,7 +74,7 @@ public class UserFlow extends Hooks {
     }
 
     /**************************************
-     * Update the created user
+     * Update the created tests
      * PUT METHOD
      ********************************/
     @Test
@@ -86,7 +86,7 @@ public class UserFlow extends Hooks {
                 accept("application/json").
                 body(fileUpdate).
             when().
-                put("/user/"+username).
+                put("/user/" +username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
@@ -97,7 +97,7 @@ public class UserFlow extends Hooks {
     }
 
     /******************************
-     * Get updated user
+     * Get updated tests
      * GET METHOD
      *****************************/
     @Test
@@ -108,7 +108,7 @@ public class UserFlow extends Hooks {
             given().
                 accept("application/json").
             when().
-                get("/user/"+username).
+                get("/user/" +username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
@@ -120,7 +120,7 @@ public class UserFlow extends Hooks {
     }
 
     /***********************************
-     * Delete the updated user
+     * Delete the updated tests
      * DELETE METHOD
      **********************************/
     @Test
@@ -131,7 +131,7 @@ public class UserFlow extends Hooks {
                 contentType(ContentType.JSON).
                 accept("application/json").
             when().
-                delete("/user/"+username).
+                delete("/user/" +username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
@@ -142,7 +142,7 @@ public class UserFlow extends Hooks {
     }
 
     /*****************************************
-     * Delete the first created user
+     * Delete the first created tests
      * DELETE METHOD
      ****************************************/
     @Test
@@ -154,7 +154,7 @@ public class UserFlow extends Hooks {
                 contentType(ContentType.JSON).
                 accept("application/json").
             when().
-                delete("/user/"+username).
+                delete("/user/" +username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).

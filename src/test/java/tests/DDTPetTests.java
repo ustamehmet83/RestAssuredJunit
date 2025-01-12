@@ -1,4 +1,4 @@
-package user;
+package tests;
 
 import io.restassured.http.ContentType;
 import org.junit.jupiter.params.ParameterizedTest;

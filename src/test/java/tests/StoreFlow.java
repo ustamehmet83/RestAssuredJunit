@@ -1,4 +1,4 @@
-package user;
+package tests;
 
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Order;
@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.is;
 public class StoreFlow extends Hooks {
 
     /**************************************************************
-     * The test expecting to create successfully a user on the page
+     * The test expecting to create successfully a tests on the page
      *************************************************************/
 
     /*****************************************
