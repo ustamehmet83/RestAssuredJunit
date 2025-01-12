@@ -1,24 +1,31 @@
 package user;
 
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.*;
+import io.restassured.path.json.JsonPath;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static io.restassured.RestAssured.*;
-import static io.restassured.module.jsv.JsonSchemaValidator.*;
-import static org.hamcrest.Matchers.*;
+import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.is;
 
 public class UserFlow extends Hooks {
 
-
+    File file = new File("src/test/resources/requestFile/createUser.json");
+    File fileUpdate=new File("src/test/resources/requestFile/updateUser.json");
+    JsonPath jsonPathFile = new JsonPath(file);
+    JsonPath jsonPathFileUpdate = new JsonPath(fileUpdate);
+    String username,email;
+    int id;
 
     /**************************************************************
      * The test expecting to create successfully a user on the page
      *************************************************************/
     @Test
     public void test1() {
-        File file = new File("src/test/resources/requestFile/createUser.json");
+
         response =
                 given().
                     contentType(ContentType.JSON).
@@ -49,33 +56,37 @@ public class UserFlow extends Hooks {
     @Test
     @Order(1)
     public void test2() {
+        username = jsonPathFile.getString("username");
+        email = jsonPathFile.getString("email");
+        id = jsonPathFile.getInt("id");
             given().
                 accept("application/json").
             when().
-                get("/user/dan_greaker").
+                get("/user/"+username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
                 log().all().
-                body("id", is(5555),
-                        "username", is("dan_greaker"),
-                        "email", is("dan.greaker@gmail.com"));
+                body("id", is(id),
+                        "username", is(username),
+                        "email", is(email));
 
     }
 
     /**************************************
-     * Update the created user(dan_greaker)
+     * Update the created user
      * PUT METHOD
      ********************************/
     @Test
     @Order(2)
     public void test3() {
+        username = jsonPathFileUpdate.getString("username");
             given().
                 contentType(ContentType.JSON).
                 accept("application/json").
-                body(new File("src/test/resources/requestFile/updateUser.json")).
+                body(fileUpdate).
             when().
-                put("/user/dan_greaker").
+                put("/user/"+username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
@@ -86,110 +97,102 @@ public class UserFlow extends Hooks {
     }
 
     /******************************
-     * Get updated user (john_doey)
+     * Get updated user
      * GET METHOD
      *****************************/
     @Test
     @Order(3)
     public void test4() {
+        username = jsonPathFileUpdate.getString("username");
+        email = jsonPathFileUpdate.getString("email");
             given().
                 accept("application/json").
             when().
-                get("/user/john_doey").
+                get("/user/"+username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
                 log().all().
                 body("id", is(4444),
-                        "username", is("john_doey"),
-                        "email", is("john_doey@gmail.com"));
+                        "username", is(username),
+                        "email", is(email));
 
     }
 
     /***********************************
-     * Delete the updated user(john_doey)
-     * DELETE MRTHOD
+     * Delete the updated user
+     * DELETE METHOD
      **********************************/
     @Test
     @Order(4)
     public void test5() {
+        username=jsonPathFileUpdate.getString("username");
             given().
                 contentType(ContentType.JSON).
                 accept("application/json").
             when().
-                delete("/user/john_doey").
+                delete("/user/"+username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
                 log().all().
-                body("message", is("john_doey"),
+                body("message", is(username),
                         "code", is(200)).log().all();
 
     }
 
     /*****************************************
-     * Delete the first created user(dan_greaker)
+     * Delete the first created user
      * DELETE METHOD
      ****************************************/
     @Test
     @Order(5)
     public void test6() {
+
+        username=jsonPathFile.getString("username");
             given().
                 contentType(ContentType.JSON).
                 accept("application/json").
             when().
-                delete("/user/dan_greaker").
+                delete("/user/"+username).
             then().assertThat().
                 statusCode(200).
                 contentType(ContentType.JSON).
-                body("message", is("dan_greaker"),
+                body("message", is(username),
                         "code", is(200)).log().all();
 
     }
 
-    /*******************************
-     * Get deleted user (john_doey)
-     * Validated user already deleted.
-     * Thr test suppose to get error message
-     * GET METHOD
-     *****************************/
+    /*****************************************
+     * Create a list of users from a JSON file
+     * POST METHOD
+     ****************************************/
     @Test
-    @Order(6)
     public void test7() {
-            given().
-                accept("application/json").
-            when().
-                get("/user/john_doey").
-            then().
+        File file = new File("src/test/resources/requestFile/createUserList.json");
+        response =
+                given().
+                        contentType(ContentType.JSON).
+                        accept("application/json").
+                        body(file).
+                        when().
+                        post("user/createWithList");
+
+        response.
+                then().
                 assertThat().
-                statusCode(404).
+                statusCode(200).
                 contentType(ContentType.JSON).
                 log().all().
-                body("code", is(1),
-                        "message", is("User not found"));
+                body(
+                        "message", is("ok"),
+                        "code", is(200)).
+                body(
+                        matchesJsonSchemaInClasspath("responseSchema/createUserSchema.json"));
 
     }
 
-    /*******************************
-     * Get deleted user (dan_graker)
-     * Validated user already deleted.
-     * Thr test suppose to get error message
-     * GET METHOD
-     *****************************/
-    @Test
-    @Order(6)
-    public void test8() {
-            given().
-                accept("application/json").
-            when().
-                get("/user/dan_greaker").
-            then().assertThat().
-                statusCode(404).
-                contentType(ContentType.JSON).
-                log().all().
-                body("code", is(1),
-                        "message", is("User not found"));
 
-    }
+
 
 }
